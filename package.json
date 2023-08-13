@@ -1,0 +1,28 @@
+{
+  "name": "phonebook",
+  "version": "0.0.0",
+  "description": "phonebpook backend",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:ui": "rm -rf build && cd ../full_stack_open/fullstack_open_exercises/part2/phonebook/ && npm run build && cp -r build ../../../../full_stack_open_phonebook_part3",
+    "deploy": "fly deploy",
+    "deploy:full": "npm run build:ui && npm run deploy",
+    "logs:prod": "fly logs"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "mongoose": "^7.4.2",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "@flydotio/dockerfile": "^0.4.3",
+    "nodemon": "^3.0.1"
+  }
+}
