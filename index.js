@@ -17,10 +17,6 @@ app.use(
 app.use(cors());
 app.use(express.static("build"));
 
-const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: "unknown endpoint" });
-};
-
 app.get("/", (request, response) => {
   response.send("<h1>Hello World!</h1>");
 });
@@ -29,16 +25,25 @@ app.get("/api/persons", (request, response) => {
   Person.find({}).then((persons) => response.json(persons));
 });
 
-app.get("/api/persons/:id", (request, response) => {
+const errHandlerNoResource = (err, req, res, next) => {
+  console.error(err.message);
+  if (err.name === "CastError") {
+    return res.status(400).send({ err: "malformatted id" });
+  }
+
+  next(err);
+};
+
+app.get("/api/persons/:id", (request, response, next) => {
   Person.findById(request.params.id)
     .then((note) => response.json(note).status(204))
-    .catch((err) => response.json(err).status(404));
+    .catch((err) => next(err));
 });
 
-app.delete("/api/persons/:id", (request, response) => {
+app.delete("/api/persons/:id", (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
     .then((note) => response.json({ result: "Success" }).status(204))
-    .catch((err) => response.json(err).status(404));
+    .catch((err) => next(err));
 });
 
 app.get("/info", (request, response) => {
@@ -83,6 +88,27 @@ app.post("/api/persons", (request, response) => {
       }
     });
 });
+
+app.put("/api/persons/:id", (request, response, next) => {
+  const body = request.body;
+
+  const person = {
+    name: body.name,
+    number: body.number,
+  };
+
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then((updatedPerson) => {
+      response.json(updatedPerson);
+    })
+    .catch((error) => next(error));
+});
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: "unknown endpoint" });
+};
+
+app.use(errHandlerNoResource);
 
 app.use(unknownEndpoint);
 
