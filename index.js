@@ -25,10 +25,12 @@ app.get("/api/persons", (request, response) => {
   Person.find({}).then((persons) => response.json(persons));
 });
 
-const errHandlerNoResource = (err, req, res, next) => {
+const errorHandler = (err, req, res, next) => {
   console.error(err.message);
   if (err.name === "CastError") {
     return res.status(400).send({ err: "malformatted id" });
+  } else if (err.name === "ValidationError") {
+    return res.status(400).json({ error: err.message });
   }
 
   next(err);
@@ -54,7 +56,7 @@ app.get("/info", (request, response) => {
   });
 });
 
-app.post("/api/persons", (request, response) => {
+app.post("/api/persons", (request, response, next) => {
   const body = request.body;
   const personName = body.name;
   const personPhoneNumber = body.number;
@@ -80,11 +82,14 @@ app.post("/api/persons", (request, response) => {
           number: personPhoneNumber,
         });
 
-        person.save().then(() => {
-          console.log(
-            `added ${personName} number ${personPhoneNumber} to phonebook`
-          );
-        });
+        person
+          .save()
+          .then(() => {
+            return response.status(201).json({
+              success: `added ${personName} number ${personPhoneNumber} to phonebook`,
+            });
+          })
+          .catch((error) => next(error));
       }
     });
 });
@@ -97,7 +102,10 @@ app.put("/api/persons/:id", (request, response, next) => {
     number: body.number,
   };
 
-  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+  Person.findByIdAndUpdate(request.params.id, person, {
+    new: true,
+    runValidators: true,
+  })
     .then((updatedPerson) => {
       response.json(updatedPerson);
     })
@@ -108,7 +116,7 @@ const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: "unknown endpoint" });
 };
 
-app.use(errHandlerNoResource);
+app.use(errorHandler);
 
 app.use(unknownEndpoint);
 
