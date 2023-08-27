@@ -10,7 +10,8 @@
     "build:ui": "rm -rf build && cd ../full_stack_open/fullstack_open_exercises/part2/phonebook/ && npm run build && cp -r build ../../../../full_stack_open_phonebook_part3",
     "deploy": "fly deploy",
     "deploy:full": "npm run build:ui && npm run deploy",
-    "logs:prod": "fly logs"
+    "logs:prod": "fly logs",
+    "lint": "eslint ."
   },
   "author": "",
   "license": "ISC",
@@ -23,6 +24,15 @@
   },
   "devDependencies": {
     "@flydotio/dockerfile": "^0.4.3",
-    "nodemon": "^3.0.1"
+    "eslint": "^8.2.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-react": "^7.28.0",
+    "eslint-plugin-react-hooks": "^4.3.0",
+    "nodemon": "^3.0.1",
+    "prettier": "3.0.2"
   }
 }
